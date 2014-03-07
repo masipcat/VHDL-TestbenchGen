@@ -37,6 +37,14 @@ class Library(object):
 	def addPackage(self, package_name):
 		self._packages += [self._lib + "." + package_name]
 
+	def getName(self):
+		return self._lib
+
+	def __eq__(self, other):
+		if isinstance(other, Library):
+			return self._lib == other.getName()
+		return False
+
 	def __str__(self):
 		return "library " + self._lib + ";" + "".join(["\nuse " + p + ";" for p in self._packages])
 
