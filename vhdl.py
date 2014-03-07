@@ -11,6 +11,9 @@ class VHDL(object):
 		if isinstance(ents, list):
 			self._entities = ents
 
+	def getEntities(self):
+		return self._entities
+
 	def addLibrary(self, lib):
 		if isinstance(lib, Library):
 			if lib not in self._libs:
@@ -52,22 +55,23 @@ class Entity(object):
 
 	def __init__(self, name):
 		self._name = name
-		self._port = []
+		self._port = ""#[]
 
 	def getName(self):
 		return self._name
 
 	def setPort(self, p):
-		if isinstance(p, Port):
-			self._port += [p]
-			return True
-		return False
+		#if isinstance(p, Port):
+		#self._port += [p]
+		self._port = p
+		return True
+		#return False
 
 	def getPorts(self):
 		return self._port
 
 	def __str__(self):
-		return self._name
+		return "<Entity " + self._name + ">"
 
 	def __eq__(self, other):
 		return self._name == other.getName() if isinstance(other, Entity) else False
@@ -108,6 +112,11 @@ class Signal(object):
 			return self._name == other.getName() and self._type == other.getType()
 		return False
 
+class PortList(object):
+
+	def __init__(self, port_str):
+		pass
+
 class Port(Signal):
 
 	_obj_name = "port"
@@ -136,17 +145,28 @@ class Port(Signal):
 
 class Architecture(object):
 
+	_begin = ""
+	_name = ""
+	_archOf = None
+
 	def __init__(self, name, ent):
-		self._begin = ""
-		self._name = name
-		self._archOf = None
+		if isinstance(name, str):
+			self._name = name
+		else:
+			print "architecture hasn't a valid name"
 		if isinstance(ent, Entity):
 			self._archOf = ent
 		else:
-			print self._name, "architecture has not a valid entity"
+			print self._name, "architecture hasn't a valid entity"
 
-	def setBegin(self, beg):
-		self._begin = beg
+	def setBegin(self, b):
+		self._begin = b
 
 	def getBegin(self):
 		return self._begin
+
+	def getEntity(self):
+		return self._archOf
+
+	def __str__(self):
+		return "<Architecture " + self._name + " of " + self._archOf.getName() + ">"

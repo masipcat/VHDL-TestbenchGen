@@ -21,7 +21,11 @@ vhd = read_file(vhd_file).lower()
 # Create a new VHDL object
 file = VHDL()
 
+# Add entities to file
 file.setEntities(getEntities(vhd))
+
+# Test code
 for l in getLibs(vhd):
 	file.addLibrary(l)
-print file
+for entity in file.getEntities():
+	print entity.getPorts()

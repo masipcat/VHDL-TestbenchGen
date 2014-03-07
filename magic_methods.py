@@ -24,8 +24,32 @@ def getEntities(vhdl_file):
 		value = getBetween(vhdl_file[value[1]:], "entity ", " is")
 		if value != ("", -1) and Entity(value[0]) not in entities:
 			ent_content = getBetween(vhdl_file, value[0] + " is", "end " + value[0] + ";")
-			print ent_content
-			entities += [Entity(value[0])]
+			between_entity = ent_content[0].strip()
+			invalid_port = True
+			port = ""
+			count = 0
+			counting = False
+			for i, char in enumerate(between_entity):
+				if char == "p":
+					if between_entity[i:4] == "port":
+						counting = True
+				if counting:
+					port += char
+					if char == "(":
+						count += 1
+					elif char == ")":
+						count -= 1
+						if between_entity[i+1] == ";" and count == 0:
+							port += ";"
+							invalid_port = False
+							break
+			else:
+				invalid_port = True
+			ent = Entity(value[0])
+			if not invalid_port:
+				#ent.setPortList(port)
+				ent.setPort(port)
+			entities += [ent]
 		else:
 			break
 	return entities
