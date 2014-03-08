@@ -90,5 +90,7 @@ def getArchitectureOfEntity(vhdl_file, entity):
 		if ent_name != entity.getName():
 			continue
 		arch = Architecture(arch_name, entity)
-		#arch.set
+		signals = getBetween(vhdl_file[value[1]:], "is", "begin")[0].strip()
+		if signals != "":
+			arch.setSignalList(SignalList(signals))
 		return arch

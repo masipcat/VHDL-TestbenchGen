@@ -129,6 +129,42 @@ class Signal(object):
 			return self._name == other.getName() and self._type == other.getType()
 		return False
 
+class SignalList():
+
+	def __init__(self, signal_str):
+		self._signals = self._getSignalFromString(signal_str.strip())
+
+	def getSignals(self):
+		return self._signals
+
+	def _getSignalFromString(self, s):
+		signals = {}
+		try:
+			for p in s.split(";"):
+				if p == "":
+					break
+				port_name, type = p.split(":")
+				port_name = port_name.strip()
+				for i in range(len(port_name)):
+					if port_name[i] == " ":
+						variable_type = port_name[:i].strip()
+						port_name = port_name[i+1:].strip()
+						break
+				else:
+					print "Invalid signal"
+					return False
+				type = type.strip()
+				if "," in port_name:
+					print ", in port_name"
+					for n in port_name.split(","):
+						n = n.strip()
+						signals[n] = Signal(n, type)
+				else:
+					signals[port_name] = Signal(port_name, type)
+		except Exception as e:
+			print "ERR: Cannot read signal from string:", e
+		return signals
+
 class Port(Signal):
 
 	_obj_name = "port"
@@ -230,10 +266,21 @@ class Architecture(object):
 	def getEntity(self):
 		return self._archOf
 
+	def setSignalList(self, sl):
+		if isinstance(sl, SignalList):
+			self._signals = sl.getSignals()
+			return True
+		return False
+
+	def getSignalList(self):
+		return self._signals
+
 	def setBegin(self, b):
+		# TODO
 		self._begin = b
 
 	def getBegin(self):
+		# TODO
 		return self._begin
 
 	def getEntity(self):
