@@ -21,37 +21,34 @@ def getEntities(vhdl_file):
 	entities = []
 	value = ("", 0)
 	while True:
-		value = getBetween(vhdl_file[value[1]:], "entity ", " is")
-		if value != ("", -1) and Entity(value[0]) not in entities:
-			ent_content = getBetween(vhdl_file, value[0] + " is", "end " + value[0] + ";")
-			between_entity = ent_content[0].strip()
-			invalid_port = True
-			port = ""
-			count = 0
-			counting = False
-			for i, char in enumerate(between_entity):
-				if char == "p":
-					if between_entity[i:4] == "port":
-						counting = True
-				if counting:
-					port += char
-					if char == "(":
-						count += 1
-					elif char == ")":
-						count -= 1
-						if between_entity[i+1] == ";" and count == 0:
-							port += ";"
-							invalid_port = False
-							break
-			else:
-				invalid_port = True
-			ent = Entity(value[0])
-			if not invalid_port:
-				#ent.setPortList(port)
-				ent.setPort(port)
-			entities += [ent]
-		else:
+		value = getBetween(vhdl_file[value[1]:], "entity", "is")
+		entity = Entity(value[0].strip())
+		if value == ("", -1) or entity in entities:
 			break
+		between_entity = getBetween(vhdl_file, entity.getName() + " is", "end")[0].strip()
+		port = ""
+		isPortFound = False			
+		bracket_counter = 0
+		isCounting = False
+		for i in range(len(between_entity)):
+			if between_entity[i:i+4] == "port":
+				isCounting = True
+			if isCounting:
+				port += between_entity[i]
+				if between_entity[i] == "(":
+					bracket_counter += 1
+				elif between_entity[i] == ")" or between_entity[i:i+1] == ");":
+					bracket_counter -= 1
+					if bracket_counter == 0:
+						port += ";"
+						isPortFound = True
+						break
+		else:
+			isPortFound = False
+		
+		if isPortFound:
+			entity.setPort(port)
+		entities += [entity]
 	return entities
 
 def getLibs(vhdl_file):
