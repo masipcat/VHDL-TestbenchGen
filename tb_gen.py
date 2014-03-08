@@ -21,11 +21,26 @@ vhd = read_file(vhd_file).lower()
 # Create a new VHDL object
 file = VHDL()
 
-# Add entities to file
-file.setEntities(getEntities(vhd))
-
-# Test code
+# Add libraries and packages to 'file'
 for l in getLibs(vhd):
 	file.addLibrary(l)
+
+# Add entities to file
+for entity in getEntities(vhd):
+	file.setEntity(entity)
+
+# Get each entity in 'file' and adds each architecture in 'file'
 for entity in file.getEntities():
-	print entity.getPorts()
+	arch = getArchitecture(vhd, entity)
+	if arch != "":
+		file.setArchitecture(arch)
+
+# ----------------------------
+# AQUÍ VA EL CÓDIGO DEL FELIPE
+# ----------------------------
+
+for architecture in file.getArchitectures():
+	print architecture
+	entity = architecture.getEntity()
+	print "\t", entity
+	print "\t\t", entity.getPorts()
