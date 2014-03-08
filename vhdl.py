@@ -5,14 +5,32 @@ class VHDL(object):
 
 	def __init__(self):
 		self._libs = []
-		self._entities = []
+		self._entities = {}
+		self._archs = {}
 
-	def setEntities(self, ents):
-		if isinstance(ents, list):
-			self._entities = ents
+	def setEntity(self, ent):
+		if isinstance(ent, Entity):
+			self._entities[ent.getName()] = ent
 
 	def getEntities(self):
-		return self._entities
+		return self._entities.values()
+
+	def getEntityByName(self, ent_name):
+		if ent_name in self._entities.keys():
+			return self._entities[ent_name]
+		return False
+
+	def setArchitecture(self, arch):
+		if isinstance(arch, Architecture):
+			self._archs[arch.getName()] = arch
+
+	def getArchitectures(self):
+		return self._archs.values()
+
+	def getArchitectureByName(self, arch_name):
+		if arch_name in self._arch.keys():
+			return self._arch[arch_name]
+		return False
 
 	def addLibrary(self, lib):
 		if isinstance(lib, Library):
@@ -158,6 +176,12 @@ class Architecture(object):
 			self._archOf = ent
 		else:
 			print self._name, "architecture hasn't a valid entity"
+
+	def getName(self):
+		return self._name
+
+	def getEntity(self):
+		return self._archOf
 
 	def setBegin(self, b):
 		self._begin = b
