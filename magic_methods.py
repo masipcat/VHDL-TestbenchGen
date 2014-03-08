@@ -75,12 +75,11 @@ def getEntities(vhdl_file):
 			isPortFound = False
 		
 		if isPortFound:
-			entity.setPort(port)
+			entity.setPortList(PortList(port))
 		entities += [entity]
 	return entities
 
-def getArchitecture(vhdl_file, entity):
-	entities = []
+def getArchitectureOfEntity(vhdl_file, entity):
 	value = ("", 0)
 	while True:
 		value = getBetween(vhdl_file[value[1]:], "architecture ", " is")
@@ -90,30 +89,6 @@ def getArchitecture(vhdl_file, entity):
 			break
 		if ent_name != entity.getName():
 			continue
-		return Architecture(arch_name, entity)
-		"""if value == ("", -1) or entity in entities:
-			break
-		between_entity = getBetween(vhdl_file, entity.getName() + " is", "end")[0].strip()
-		port = ""
-		bracket_counter = 0
-		isCounting, isPortFound = False, False
-		for i in range(len(between_entity)):
-			if between_entity[i:i+4] == "port":
-				isCounting = True
-			if isCounting:
-				port += between_entity[i]
-				if between_entity[i] == "(":
-					bracket_counter += 1
-				elif between_entity[i] == ")" or between_entity[i:i+1] == ");":
-					bracket_counter -= 1
-					if bracket_counter == 0:
-						port += ";"
-						isPortFound = True
-						break
-		else:
-			isPortFound = False
-		
-		if isPortFound:
-			entity.setPort(port)
-		entities += [entity]
-	return entities"""
+		arch = Architecture(arch_name, entity)
+		#arch.set
+		return arch

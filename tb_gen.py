@@ -25,22 +25,29 @@ vhdl = VHDL()
 for l in getLibs(vhd_file):
 	vhdl.addLibrary(l)
 
-# Add entities to vhdl
+# Add entities to 'vhdl'
 for entity in getEntities(vhd_file):
 	vhdl.setEntity(entity)
 
 # Get each entity in 'vhdl' and adds each architecture in 'vhdl'
 for entity in vhdl.getEntities():
-	arch = getArchitecture(vhd_file, entity)
+	arch = getArchitectureOfEntity(vhd_file, entity)
 	if arch != "":
 		vhdl.setArchitecture(arch)
 
-# ----------------------------
-# AQUÍ VA EL CÓDIGO DEL FELIPE
-# ----------------------------
+# ---------------------------
+# AQUÍ VA EL CÓDIGO DE FELIPE
+# ---------------------------
 
 for architecture in vhdl.getArchitectures():
 	print architecture
 	entity = architecture.getEntity()
 	print "\t", entity
-	print "\t\t", entity.getPorts()
+	for port in entity.getPorts().values():
+		print "\t\t", port
+	print "\t\t------------"
+	print "\t\tRENAME ports"
+	print "\t\t------------"
+	for port in entity.getPorts().values():
+		port.setName("t_" + port.getName())
+		print "\t\t", port

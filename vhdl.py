@@ -73,17 +73,16 @@ class Entity(object):
 
 	def __init__(self, name):
 		self._name = name
-		self._port = ""#[]
+		self._port = {}
 
 	def getName(self):
 		return self._name
 
-	def setPort(self, p):
-		#if isinstance(p, Port):
-		#self._port += [p]
-		self._port = p
-		return True
-		#return False
+	def setPortList(self, p):
+		if isinstance(p, PortList):
+			self._port = p.getPorts()
+			return True
+		return False
 
 	def getPorts(self):
 		return self._port
@@ -130,11 +129,6 @@ class Signal(object):
 			return self._name == other.getName() and self._type == other.getType()
 		return False
 
-class PortList(object):
-
-	def __init__(self, port_str):
-		pass
-
 class Port(Signal):
 
 	_obj_name = "port"
@@ -160,6 +154,59 @@ class Port(Signal):
 		if isinstance(other, Port):
 			return self._name == other.getName() and self._type == other.getType() and self._port_type == other.getPortType()
 		return False
+
+class PortList(object):
+
+	def __init__(self, port_str):
+		self._ports = self._getPortFromString(port_str.strip())
+
+	def getPorts(self):
+		return self._ports
+
+	def _getPortFromString(self, s):
+		ports = {}
+		counting = False
+		bracket_count = 0
+		between_port = ""
+		skip_times = 0
+		for i in range(len(s)):
+			if skip_times > 0:
+				skip_times -= 1
+				continue
+			if s[i:i+4] == "port":
+				counting = True
+				skip_times = 3
+				continue
+			elif s[i] == "(":
+				bracket_count += 1
+			elif s[i] == ")":
+				bracket_count -= 1
+				if bracket_count == 0:
+					break
+			if counting:
+				between_port += s[i]
+		port = ""
+		for line in between_port.strip()[1:].strip().split("\n"):
+			port += line.strip()
+		try:
+			for p in port.split(";"):
+				port_name, type = p.split(":")
+				port_name = port_name.strip()
+				type = type.strip()
+				for i in range(len(type)):
+					if type[i] == " ":
+						port_type = type[:i]
+						variable_type = type[i+1:]
+						break
+				if "," in port_name:
+					for n in port_name.split(","):
+						n = n.strip()
+						ports[n] = Port(n, port_type, variable_type)
+				else:		
+					ports[port_name] = Port(port_name, port_type, variable_type)
+		except Exception as e:
+			print "ERR: Cannot read port from string:", e
+		return ports
 
 class Architecture(object):
 
