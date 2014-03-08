@@ -39,15 +39,18 @@ for entity in vhdl.getEntities():
 # AQUÍ VA EL CÓDIGO DE FELIPE
 # ---------------------------
 
+# Get each arch in vhdl file
 for architecture in vhdl.getArchitectures():
 	print architecture
+
+	# Get each signal in arch
+	for signal in architecture.getSignalList().values():
+		print "\t", signal
+	
+	# Get the entity of arch
 	entity = architecture.getEntity()
 	print "\t", entity
+
+	# Print each port defined in entity statment
 	for port in entity.getPorts().values():
-		print "\t\t", port
-	print "\t\t------------"
-	print "\t\tRENAME ports"
-	print "\t\t------------"
-	for port in entity.getPorts().values():
-		port.setName("t_" + port.getName())
 		print "\t\t", port
