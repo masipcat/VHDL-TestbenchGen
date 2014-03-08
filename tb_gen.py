@@ -16,30 +16,30 @@ if len(sys.argv) != 2:
 vhd_file = sys.argv[1]
 
 # Read VHDL file
-vhd = read_file(vhd_file).lower()
+vhd_file = read_file(vhd_file).lower()
 
 # Create a new VHDL object
-file = VHDL()
+vhdl = VHDL()
 
-# Add libraries and packages to 'file'
-for l in getLibs(vhd):
-	file.addLibrary(l)
+# Add libraries and packages to 'vhdl'
+for l in getLibs(vhd_file):
+	vhdl.addLibrary(l)
 
-# Add entities to file
-for entity in getEntities(vhd):
-	file.setEntity(entity)
+# Add entities to vhdl
+for entity in getEntities(vhd_file):
+	vhdl.setEntity(entity)
 
-# Get each entity in 'file' and adds each architecture in 'file'
-for entity in file.getEntities():
-	arch = getArchitecture(vhd, entity)
+# Get each entity in 'vhdl' and adds each architecture in 'vhdl'
+for entity in vhdl.getEntities():
+	arch = getArchitecture(vhd_file, entity)
 	if arch != "":
-		file.setArchitecture(arch)
+		vhdl.setArchitecture(arch)
 
 # ----------------------------
 # AQUÍ VA EL CÓDIGO DEL FELIPE
 # ----------------------------
 
-for architecture in file.getArchitectures():
+for architecture in vhdl.getArchitectures():
 	print architecture
 	entity = architecture.getEntity()
 	print "\t", entity
