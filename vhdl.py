@@ -69,7 +69,13 @@ class Library(object):
 		self._packages = []
 
 	def addPackage(self, package_name):
-		self._packages += [self._lib + "." + package_name]
+		if self._lib + "." + package_name not in self._packages:
+			self._packages += [self._lib + "." + package_name]
+		else:
+			print "ERR: This package is already in this library"
+
+	def getPackages(self):
+		return self._packages
 
 	def getName(self):
 		return self._lib
