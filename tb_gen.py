@@ -42,6 +42,10 @@ for entity in vhdl.getEntities():
 # Get each lib in this file:
 for lib in vhdl.getLibs():
 	print lib
+	for pack in lib.getPackages():
+		print "use " + pack + ";"
+
+print
 
 # Get each arch in vhdl file
 for architecture in vhdl.getArchitectures():
