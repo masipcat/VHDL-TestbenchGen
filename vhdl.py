@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+VHDL Classes
+============
+
+.. moduleauthor:: Jordi Masip <jordi@masip.cat>
+"""
+
 class VHDL(object):
 
 	def __init__(self):
@@ -45,6 +52,12 @@ class VHDL(object):
 			return True
 		except Exception:
 			return False
+
+	def getLibs(self):
+		"""
+		Returns a list of Libraries
+		"""
+		return self._libs
 
 	def __str__(self):
 		return "\n".join([str(l) for l in self._libs])
