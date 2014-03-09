@@ -28,9 +28,11 @@ def getLibs(vhdl_file):
 	value = ("", 0)
 	while True:
 		value = getBetween(vhdl_file[value[1]:], "library", ";")
-		if value[1] == -1:
+		if value == ("", -1):
 			break
 		lib_name = value[0].strip().lower()
+		if lib_name in libs:
+			break
 		libs[lib_name] = Library(lib_name)
 	value = ("", 0)
 	while True:
