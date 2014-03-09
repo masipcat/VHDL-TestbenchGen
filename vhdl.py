@@ -80,7 +80,7 @@ class Library(object):
 		return False
 
 	def __str__(self):
-		return "library " + self._lib + ";" + "".join(["\nuse " + p + ";" for p in self._packages])
+		return "<Library " + self._lib + ">"
 
 class Entity(object):
 
