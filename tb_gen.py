@@ -39,6 +39,10 @@ for entity in vhdl.getEntities():
 # AQUÍ VA EL CÓDIGO DE FELIPE
 # ---------------------------
 
+# Get each lib in this file:
+for lib in vhdl.getLibs():
+	print lib
+
 # Get each arch in vhdl file
 for architecture in vhdl.getArchitectures():
 	print architecture
