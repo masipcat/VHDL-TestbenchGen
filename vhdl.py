@@ -162,7 +162,7 @@ class SignalList():
 			for p in s.split(";"):
 				if p == "":
 					break
-				port_name, type = p.split(":")
+				port_name, t = p.split(":")
 				port_name = port_name.strip()
 				for i in range(len(port_name)):
 					if port_name[i] == " ":
@@ -172,14 +172,14 @@ class SignalList():
 				else:
 					print "Invalid signal"
 					return False
-				type = type.strip()
+				t = t.strip()
 				if "," in port_name:
 					print ", in port_name"
 					for n in port_name.split(","):
 						n = n.strip()
-						signals[n] = Signal(n, type)
+						signals[n] = Signal(n, t)
 				else:
-					signals[port_name] = Signal(port_name, type)
+					signals[port_name] = Signal(port_name, t)
 		except Exception as e:
 			print "ERR: Cannot read signal from string:", e
 		return signals
@@ -189,8 +189,8 @@ class Port(Signal):
 	_obj_name = "port"
 	_port_type = "in"
 
-	def __init__(self, name, port_type, type):
-		Signal.__init__(self, name, type)
+	def __init__(self, name, port_type, t):
+		Signal.__init__(self, name, t)
 		self.setPortType(port_type)
 
 	def setPortType(self, t):
@@ -245,13 +245,13 @@ class PortList(object):
 			port += line.strip()
 		try:
 			for p in port.split(";"):
-				port_name, type = p.split(":")
+				port_name, t = p.split(":")
 				port_name = port_name.strip()
-				type = type.strip()
-				for i in range(len(type)):
-					if type[i] == " ":
-						port_type = type[:i]
-						variable_type = type[i+1:]
+				t = t.strip()
+				for i in range(len(t)):
+					if t[i] == " ":
+						port_type = t[:i]
+						variable_type = t[i+1:]
 						break
 				if "," in port_name:
 					for n in port_name.split(","):

@@ -6,7 +6,7 @@ from vhdl import *
 from magic_methods import *
 
 # Used to test code using SublimeText
-sys.argv += ["tests/hex7seg.vhd"]
+sys.argv += ["tests/full_adder.vhd"]
 
 if len(sys.argv) != 2:
 	print "Filename not specified"
@@ -42,10 +42,6 @@ for entity in vhdl.getEntities():
 # Get each lib in this file:
 for lib in vhdl.getLibs():
 	print lib
-	for pack in lib.getPackages():
-		print "use " + pack + ";"
-
-print
 
 # Get each arch in vhdl file
 for architecture in vhdl.getArchitectures():
