@@ -3,7 +3,7 @@
 
 import sys
 from vhdl import *
-from magic_methods import *
+from vParser import *
 
 # Used to test code using SublimeText
 sys.argv += ["tests/full_adder.vhd"]
@@ -34,10 +34,6 @@ for entity in vhdl.getEntities():
 	arch = getArchitectureOfEntity(vhd_file, entity)
 	if arch != "":
 		vhdl.setArchitecture(arch)
-
-# ---------------------------
-# AQUÍ VA EL CÓDIGO DE FELIPE
-# ---------------------------
 
 # Get each lib in this file:
 for lib in vhdl.getLibs():

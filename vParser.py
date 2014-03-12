@@ -44,7 +44,7 @@ def getLibs(vhdl_file):
 		if lib in libs.keys():
 			libs[lib].addPackage(package)
 		else:
-			print "ERR: Using library '" + lib + "' in package '" + lib + "." + package + ";' without adding the library"
+			print "ERR: Using library '" + lib + "' in package '" + lib + "." + package + "' without adding the library"
 			break
 	return libs.values()
 

@@ -148,7 +148,7 @@ class Signal(object):
 			return self._name == other.getName() and self._type == other.getType()
 		return False
 
-class SignalList():
+class SignalList(object):
 
 	def __init__(self, signal_str):
 		self._signals = self._getSignalFromString(signal_str.strip())
@@ -214,6 +214,8 @@ class PortList(object):
 
 	def __init__(self, port_str):
 		self._ports = self._getPortFromString(port_str.strip())
+		if self._ports == None:
+			self._ports = {}
 
 	def getPorts(self):
 		return self._ports
@@ -228,7 +230,7 @@ class PortList(object):
 			if skip_times > 0:
 				skip_times -= 1
 				continue
-			if s[i:i+4] == "port":
+			elif s[i:i+4] == "port":
 				counting = True
 				skip_times = 3
 				continue
@@ -240,10 +242,8 @@ class PortList(object):
 					break
 			if counting:
 				between_port += s[i]
-		port = ""
-		for line in between_port.strip()[1:].strip().split("\n"):
-			port += line.strip()
 		try:
+			port = between_port.strip()[1:].replace("\n", "")
 			for p in port.split(";"):
 				port_name, t = p.split(":")
 				port_name = port_name.strip()
@@ -259,9 +259,9 @@ class PortList(object):
 						ports[n] = Port(n, port_type, variable_type)
 				else:		
 					ports[port_name] = Port(port_name, port_type, variable_type)
+			return ports
 		except Exception as e:
-			print "ERR: Cannot read port from string:", e
-		return ports
+			print "ERR: We couldn't read ports"
 
 class Architecture(object):
 
