@@ -6,7 +6,7 @@ from vhdl import *
 from vParser import *
 
 # Used to test code using SublimeText
-sys.argv += ["tests/full_adder.vhd"]
+sys.argv += ["tests/HVcounter.vhd"]
 
 if len(sys.argv) != 2:
 	print "Filename not specified"

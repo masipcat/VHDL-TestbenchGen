@@ -117,6 +117,7 @@ class Signal(object):
 	_obj_name = "signal"
 	_name = ""
 	_type = ""
+	_value = ""
 
 	def __init__(self, name, type):
 		self.setName(name)
@@ -131,6 +132,12 @@ class Signal(object):
 		else:
 			print "ERR: %s name must be a string" % self._obj_name
 
+	def setValue(self, val):
+		self._value = val
+
+	def getValue(self):
+		return self._value
+
 	def getType(self):
 		return self._type
 
@@ -141,7 +148,10 @@ class Signal(object):
 			print "ERR: %s type must be a string" % self._obj_name
 
 	def __str__(self):
-		return "<%s %s : %s>" % (self._obj_name.capitalize(), self._name, self._type)
+		if self._value == "":
+			return "<%s %s : %s>" % (self._obj_name.capitalize(), self._name, self._type)
+		else:
+			return "<%s %s : %s := %s>" % (self._obj_name.capitalize(), self._name, self._type, self._value)
 
 	def __eq__(self, other):
 		if isinstance(other, Signal):
@@ -159,27 +169,38 @@ class SignalList(object):
 	def _getSignalFromString(self, s):
 		signals = {}
 		try:
-			for p in s.split(";"):
-				if p == "":
+			for signal in s.split(";"):
+				signal = signal.strip()
+				if signal == "":
 					break
-				port_name, t = p.split(":")
-				port_name = port_name.strip()
-				for i in range(len(port_name)):
-					if port_name[i] == " ":
-						variable_type = port_name[:i].strip()
-						port_name = port_name[i+1:].strip()
+				isSignalWithAssignation = ":=" in signal
+				if isSignalWithAssignation:
+					left, assignation = signal.split(":=")
+				else:
+					left = signal
+				port_prefix, t = left.strip().split(":")
+				port_prefix = port_prefix.strip()
+				for i in range(len(port_prefix)):
+					if port_prefix[i] == " ":
+						variable_type = port_prefix[:i].strip()
+						port_prefix = port_prefix[i+1:].strip()
 						break
 				else:
-					print "Invalid signal"
-					return False
+					print "ERR: Invalid signal '%s'" % signal
+					return signals
 				t = t.strip()
-				if "," in port_name:
-					print ", in port_name"
-					for n in port_name.split(","):
+				if "," in port_prefix:
+					for n in port_prefix.split(","):
 						n = n.strip()
-						signals[n] = Signal(n, t)
+						signal = Signal(n, t)
+						if isSignalWithAssignation:
+							signal.setValue(assignation)
+						signals[n] = signal
 				else:
-					signals[port_name] = Signal(port_name, t)
+					signal = Signal(port_prefix, t)
+					if isSignalWithAssignation:
+							signal.setValue(assignation)
+					signals[port_prefix] = signal
 		except Exception as e:
 			print "ERR: Cannot read signal from string: %s" % e
 		return signals

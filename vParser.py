@@ -11,32 +11,30 @@ def read_file(filename):
 
 def getBetween(s, pref, suf):
 	try:
-		if pref == "":
-			start = 0
-		else:
-			start = s.index(pref) # if start != 0 else 0
-		if suf == "":
-			end = len(s)
-		else:
-			end = s[start:].index(suf)
-		return (s[start + len(pref):start+end], start+end)
+		start = 0 if pref == "" else s.index(pref)
+		end = len(s) if suf == "" else s[start:].index(suf)
+		return (s[start + len(pref):start+end], end)
 	except Exception:
 		return ("", -1)
 
 def getLibs(vhdl_file):
 	libs = {}
-	value = ("", 0)
+	if "library" not in vhdl_file:
+		return []
+	last_pos = 0
 	while True:
-		value = getBetween(vhdl_file[value[1]:], "library", ";")
+		value = getBetween(vhdl_file[last_pos:], "library", ";")
+		last_pos += value[1]
 		if value == ("", -1):
 			break
 		lib_name = value[0].strip().lower()
 		if lib_name in libs:
 			break
 		libs[lib_name] = Library(lib_name)
-	value = ("", 0)
+	last_pos = 0
 	while True:
-		value = getBetween(vhdl_file[value[1]:], "use", ";")
+		value = getBetween(vhdl_file[last_pos:], "use", ";")
+		last_pos += value[1]
 		if value == ("", -1):
 			break
 		use_statment = value[0].strip().lower().split(".")
@@ -50,12 +48,13 @@ def getLibs(vhdl_file):
 
 def getEntities(vhdl_file):
 	entities = []
-	value = ("", 0)
+	last_pos = 0
 	while True:
-		value = getBetween(vhdl_file[value[1]:], "entity", "is")
+		value = getBetween(vhdl_file[last_pos:], "entity", "is")
 		entity = Entity(value[0].strip())
 		if value == ("", -1) or entity in entities:
 			break
+		last_pos += value[1]
 		between_entity = getBetween(vhdl_file, entity.getName() + " is", "end")[0].strip()
 		port = ""
 		bracket_counter = 0
@@ -68,15 +67,15 @@ def getEntities(vhdl_file):
 				port += between_entity[i]
 				if between_entity[i] == "(":
 					bracket_counter += 1
-				elif between_entity[i] == ")" or between_entity[i:i+1] == ");":
+				elif between_entity[i] == ")":
 					bracket_counter -= 1
-					if bracket_counter == 0:
-						port += ";"
-						isPortFound = True
-						break
+				elif between_entity[i] == ";" and bracket_counter == 0:
+					isPortFound = True
+					isValidPort = True
+					break
 		else:
 			isValidPort = False
-		
+
 		if isValidPort:
 			entity.setPortList(PortList(port))
 		elif isPortFound:
@@ -85,17 +84,18 @@ def getEntities(vhdl_file):
 	return entities
 
 def getArchitectureOfEntity(vhdl_file, entity):
-	value = ("", 0)
+	last_pos = 0
 	while True:
-		value = getBetween(vhdl_file[value[1]:], "architecture ", " is")
+		value = getBetween(vhdl_file[last_pos:], "architecture", "begin")
+		last_pos += value[1]
 		arch_name = getBetween(value[0], "", " of")[0].strip()
-		ent_name = getBetween(value[0], "of ", "")[0].strip()
+		ent_name = getBetween(value[0], "of ", "is")[0].strip()
 		if arch_name == "" or ent_name == "":
 			break
 		if ent_name != entity.getName():
 			continue
 		arch = Architecture(arch_name, entity)
-		signals = getBetween(vhdl_file[value[1]:], "is", "begin")[0].strip()
+		signals = getBetween(value[0], "is", "")[0].strip()
 		if signals != "":
 			arch.setSignalList(SignalList(signals))
 		return arch
