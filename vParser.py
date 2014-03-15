@@ -4,10 +4,22 @@
 from vhdl import *
 
 def read_file(filename):
-	f = open(filename, "r")
-	content = f.read()
-	f.close()
-	return content
+	try:
+		f = open(filename, "r")
+		content = f.read()
+		f.close()
+		return content
+	except Exception as e:
+		print "ERR: We couldn't read '%s'" % filename
+		return ""
+
+def write_file(filename, content):
+	try:
+		f = open(filename, "w")
+		f.write(content)
+		f.close()
+	except Exception as e:
+		print "ERR: We couldn't write '%s'" % filename
 
 def getBetween(s, pref, suf):
 	try:

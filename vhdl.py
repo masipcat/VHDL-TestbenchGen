@@ -244,9 +244,8 @@ class PortList(object):
 	def _getPortFromString(self, s):
 		ports = {}
 		counting = False
-		bracket_count = 0
+		skip_times, bracket_count = 0, 0
 		between_port = ""
-		skip_times = 0
 		for i in range(len(s)):
 			if skip_times > 0:
 				skip_times -= 1
@@ -294,11 +293,11 @@ class Architecture(object):
 		if isinstance(name, str):
 			self._name = name
 		else:
-			print "architecture hasn't a valid name"
+			print "ERR: This architecture hasn't a valid name"
 		if isinstance(ent, Entity):
 			self._archOf = ent
 		else:
-			print self._name, "architecture hasn't a valid entity"
+			print "ERR: Architecture '%s' hasn't a valid entity" % self._name
 
 	def getName(self):
 		return self._name
@@ -314,14 +313,6 @@ class Architecture(object):
 
 	def getSignalList(self):
 		return self._signals
-
-	def setBegin(self, b):
-		# TODO
-		self._begin = b
-
-	def getBegin(self):
-		# TODO
-		return self._begin
 
 	def getEntity(self):
 		return self._archOf
