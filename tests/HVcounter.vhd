@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity HVcounter is 
-	port ( 	clk, a: in STD_LOGIC;
+	port ( 	clk: in STD_LOGIC;
 		H  : out STD_LOGIC_VECTOR (9 downto 0);
         V  : out STD_LOGIC_VECTOR (9 downto 0));
 end HVcounter;
