@@ -86,7 +86,7 @@ class Library(object):
 		return False
 
 	def __str__(self):
-		return "<Library " + self._lib + ">"
+		return "<Library %s>" % self._lib
 
 class Entity(object):
 
@@ -129,7 +129,7 @@ class Signal(object):
 		if isinstance(n, str):
 			self._name = n
 		else:
-			print "ERR: " + self._obj_name + " name must be a string"
+			print "ERR: %s name must be a string" % self._obj_name
 
 	def getType(self):
 		return self._type
@@ -138,10 +138,10 @@ class Signal(object):
 		if isinstance(t, str):
 			self._type = t
 		else:
-			print "ERR: " + self._obj_name + " type must be a string"
+			print "ERR: %s type must be a string" % self._obj_name
 
 	def __str__(self):
-		return "<" + self._obj_name.capitalize() + " " + self._name + " : " + self._type + ">"
+		return "<%s %s : %s>" % (self._obj_name.capitalize(), self._name, self._type)
 
 	def __eq__(self, other):
 		if isinstance(other, Signal):
@@ -181,7 +181,7 @@ class SignalList(object):
 				else:
 					signals[port_name] = Signal(port_name, t)
 		except Exception as e:
-			print "ERR: Cannot read signal from string:", e
+			print "ERR: Cannot read signal from string: %s" % e
 		return signals
 
 class Port(Signal):
@@ -197,13 +197,13 @@ class Port(Signal):
 		if t in ["in", "out", "inout", "buffer", "linkage"]:
 			self._port_type = t
 		else:
-			print "ERR: '" + str(t) + "' isn't a valid port_type for", self._obj_name + " '" + self._name + "'. "
+			print "ERR: '%s' isn't a valid port_type for %s '%s'" % (str(t), self._obj_name, self._name)
 
 	def getPortType(self):
 		return self._port_type
 
 	def __str__(self):
-		return "<" + self._obj_name.capitalize() + " " + self._name + " : " + self._port_type + " " + self._type + ">"
+		return "<%s %s : %s %s>" % (self._obj_name.capitalize(), self._name, self._port_type, self._type)
 
 	def __eq__(self, other):
 		if isinstance(other, Port):
@@ -306,4 +306,4 @@ class Architecture(object):
 		return self._archOf
 
 	def __str__(self):
-		return "<Architecture " + self._name + " of " + self._archOf.getName() + ">"
+		return "<Architecture %s of %s>" % (self._name, self._archOf.getName())

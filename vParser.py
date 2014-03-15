@@ -44,7 +44,7 @@ def getLibs(vhdl_file):
 		if lib in libs.keys():
 			libs[lib].addPackage(package)
 		else:
-			print "ERR: Using library '" + lib + "' in package '" + lib + "." + package + "' without adding the library"
+			print "ERR: Using library '%s' in package '%s.%s' without adding the library" % (lib, lib, package)
 			break
 	return libs.values()
 
@@ -59,10 +59,11 @@ def getEntities(vhdl_file):
 		between_entity = getBetween(vhdl_file, entity.getName() + " is", "end")[0].strip()
 		port = ""
 		bracket_counter = 0
-		isCounting, isPortFound = False, False
+		isCounting, isPortFound, isValidPort = False, False, False
 		for i in range(len(between_entity)):
 			if between_entity[i:i+4] == "port":
 				isCounting = True
+				isPortFound = True
 			if isCounting:
 				port += between_entity[i]
 				if between_entity[i] == "(":
@@ -74,10 +75,12 @@ def getEntities(vhdl_file):
 						isPortFound = True
 						break
 		else:
-			isPortFound = False
+			isValidPort = False
 		
-		if isPortFound:
+		if isValidPort:
 			entity.setPortList(PortList(port))
+		elif isPortFound:
+			print "ERR: Cannot read port defined in '%s' entity" % entity.getName()
 		entities += [entity]
 	return entities
 
