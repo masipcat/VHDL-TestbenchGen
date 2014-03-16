@@ -4,9 +4,16 @@
 from vhdl import *
 import sys, os
 
+"""
+vParser
+=======
+
+.. moduleauthor:: Jordi Masip <jordi@masip.cat>
+"""
+
 def read_file(filename):
-	if not os.path.isfile(fname):
-		print "ERR: File '%s' not found" % filename
+	if not os.path.isfile(filename):
+		print "ERR: L'arxiu '%s' no existeix" % filename
 		sys.exit(1)
 
 	try:
@@ -15,7 +22,7 @@ def read_file(filename):
 		f.close()
 		return content
 	except Exception as e:
-		print "ERR: We couldn't read '%s'" % filename
+		print "ERR: No hem pogut llegir l'arxiu '%s'" % filename
 		sys.exit(1)
 
 def write_file(filename, content):
@@ -24,7 +31,7 @@ def write_file(filename, content):
 		f.write(content)
 		f.close()
 	except Exception as e:
-		print "ERR: We couldn't write '%s'" % filename
+		print "ERR: No hem pogut escriure l'arxiu '%s'" % filename
 		sys.exit(1)
 
 def getBetween(s, pref, suf):
@@ -60,7 +67,7 @@ def getLibs(vhdl_file):
 		if lib in libs.keys():
 			libs[lib].addPackage(package)
 		else:
-			print "ERR: Using library '%s' in package '%s.%s' without adding the library" % (lib, lib, package)
+			print "ERR: S'està utilitzant la llibreria '%s' al paquet '%s.%s' sense haver-la afegit" % (lib, lib, package)
 			break
 	return libs.values()
 
@@ -97,7 +104,7 @@ def getEntities(vhdl_file):
 		if isValidPort:
 			entity.setPortList(PortList(port))
 		elif isPortFound:
-			print "ERR: Cannot read port defined in '%s' entity" % entity.getName()
+			print "ERR: No es pot llegir el port definit a l'entitat '%s'" % entity.getName()
 		entities += [entity]
 	return entities
 
@@ -117,3 +124,5 @@ def getArchitectureOfEntity(vhdl_file, entity):
 		if signals != "":
 			arch.setSignalList(SignalList(signals))
 		return arch
+	print "ERR: No s'ha trobat cap arquitectura de l'entitat '%s'" % entity.getName()
+	sys.exit(1)
