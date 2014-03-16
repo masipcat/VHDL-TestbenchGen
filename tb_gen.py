@@ -119,7 +119,7 @@ def dutTb():
 	b=0
 	for architecture in vhdl.getArchitectures():
 		entity = architecture.getEntity()
-		result += '\tdut: my_'+entity.getName()+'port map (\n'
+		result += '\tdut: my_'+entity.getName()+' port map (\n'
 		for port in entity.getPorts().values():
 			if b != len(entity.getPorts().values())-1:
 				result += '\t\t'+port.getName()+'\t=> t_'+port.getName()+',\n'
