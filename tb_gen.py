@@ -137,7 +137,7 @@ def clocktb():
 			print clk
 			print 'Opció no vàlida'
 		elif clk == 's':
-			result+="\tclk_process: process\n\tbegin\n\t\tclk <= '0';\n\t\twait for ¿? ns;\n\t\tfor i in 1 to ¿? loop\n\t\t\tclk <= not clk;\n\t\t\twait for ¿? ns;\n\t\tend loop;\n\t\twait;\n\t end process clk_process;"
+			result+="\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for ¿? ns;\n\t\tfor i in 1 to ¿? loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for ¿? ns;\n\t\tend loop;\n\t\twait;\n\t end process clk_process;"
 			return result
 		else:
 			return result
