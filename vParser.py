@@ -2,8 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from vhdl import *
+import sys, os
 
 def read_file(filename):
+	if not os.path.isfile(fname):
+		print "ERR: File '%s' not found" % filename
+		sys.exit(1)
+
 	try:
 		f = open(filename, "r")
 		content = f.read()
@@ -11,7 +16,7 @@ def read_file(filename):
 		return content
 	except Exception as e:
 		print "ERR: We couldn't read '%s'" % filename
-		return ""
+		sys.exit(1)
 
 def write_file(filename, content):
 	try:
@@ -20,6 +25,7 @@ def write_file(filename, content):
 		f.close()
 	except Exception as e:
 		print "ERR: We couldn't write '%s'" % filename
+		sys.exit(1)
 
 def getBetween(s, pref, suf):
 	try:
