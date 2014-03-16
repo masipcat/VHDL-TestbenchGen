@@ -1,46 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-import os
+import sys, os
 from vhdl import *
 from vParser import *
-
-name=sys.argv[1]
-
-
-if len(sys.argv) != 2:
-	print "Especifica nom del fitxer"
-	sys.exit(1)
-
-
-if '.vhd' not in name:
-	print 'Extenció no vàlida'
-	sys.exit(1)
-
-
-maketb=name.split('.')
-maketb=maketb[0]+'_tb.'+maketb[1]
-tb_result = ""
-
-vhd_file = sys.argv[1]
-
-vhd_file = read_file(vhd_file).lower()
-
-vhdl = VHDL()
-
-for l in getLibs(vhd_file):
-	vhdl.addLibrary(l)
-
-for entity in getEntities(vhd_file):
-	vhdl.setEntity(entity)
-
-# Get each entity in 'vhdl' and adds each architecture in 'vhdl'
-for entity in vhdl.getEntities():
-	arch = getArchitectureOfEntity(vhd_file, entity)
-	if arch != "":
-		vhdl.setArchitecture(arch)
-
 
 print """
 dP     dP dP     dP  888888ba  dP        
@@ -61,9 +24,38 @@ oooooooooooooooooooooooooooooooooooooooooooooooo
 
 version: 1.0
 author: Felipe Arango, Jordi Masip
-
 """
 
+if len(sys.argv) != 2:
+	print "ERR: Has d'especificar un fitxer .vhd"
+	sys.exit(1)
+
+name = sys.argv[1]
+
+if '.vhd' not in name:
+	print 'ERR: L\'extenció del fitxer ha de ser .vhd'
+	sys.exit(1)
+
+
+maketb=name.split('.')
+maketb=maketb[0]+'_tb.'+maketb[1]
+tb_result = ""
+
+vhd_file = sys.argv[1]
+vhd_file = read_file(vhd_file).lower()
+vhdl = VHDL()
+
+for l in getLibs(vhd_file):
+	vhdl.addLibrary(l)
+
+for entity in getEntities(vhd_file):
+	vhdl.setEntity(entity)
+
+# Get each entity in 'vhdl' and adds each architecture in 'vhdl'
+for entity in vhdl.getEntities():
+	arch = getArchitectureOfEntity(vhd_file, entity)
+	if arch != "":
+		vhdl.setArchitecture(arch)
 	
 def LibrarysTb(): #Librerias
 	result = ""
@@ -116,31 +108,27 @@ def dutSignalsTb():
 		
 def dutTb():
 	result = ""
-	b=0
 	for architecture in vhdl.getArchitectures():
 		entity = architecture.getEntity()
-		result += '\tdut: my_'+entity.getName()+' port map (\n'
-		for port in entity.getPorts().values():
-			if b != len(entity.getPorts().values())-1:
+		result += '\tdut: my_%s port map (\n' % entity.getName()
+		for i, port in enumerate(entity.getPorts().values()):
+			if i != len(entity.getPorts().values())-1:
 				result += '\t\t'+port.getName()+'\t=> t_'+port.getName()+',\n'
-				b+=1
+				i += 1
 			else:
 				result += '\t\t'+port.getName()+'\t=> t_'+port.getName()+');\n'
 	return result
 
 def clocktb():
 	result=""
-	res='sn'
 	while True: 
-		clk = raw_input('Vols un clock?: [s/n]')
+		clk = raw_input('Vols generar un clock? [s/n] ').lower()
 		if clk != 's' and clk != 'n':
-			print clk
-			print 'Opció no vàlida'
+			print 'ERR: Opció invàlida'
+			continue
 		elif clk == 's':
-			result+="\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for ¿? ns;\n\t\tfor i in 1 to ¿? loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for ¿? ns;\n\t\tend loop;\n\t\twait;\n\t end process clk_process;"
-			return result
-		else:
-			return result
+			result += "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for ¿? ns;\n\t\tfor i in 1 to ¿? loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for ¿? ns;\n\t\tend loop;\n\t\twait;\n\t end process clk_process;"
+		return result
 			
 tb_result += LibrarysTb()
 tb_result += entityTb()
@@ -152,4 +140,4 @@ tb_result += clocktb()
 
 # Write to file
 write_file(maketb, tb_result)
-print maketb+' creat'
+print 'El fitxer %s s\'ha creat correctament' % maketb
