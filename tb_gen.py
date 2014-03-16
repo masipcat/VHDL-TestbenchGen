@@ -80,7 +80,12 @@ def architectureTb():
 	result = ""
 	for architecture in vhdl.getArchitectures():
 		entity = architecture.getEntity()
-	result += 'architecture behav of '+entity.getName()+'_tb is\n'+'\tcomponent my_'+entity.getName()+'\n'
+		result += 'architecture behav of '+entity.getName()+'_tb is\n'+'\tcomponent my_'+entity.getName()+'\n'
+		result += portsTb()
+		result += dutSignalsTb()
+		result += dutTb()
+		result += clocktb()
+		result += '\n\t-- Els teus process van aqui:\nend behav;'
 	return result
 
 def portsTb():
@@ -120,24 +125,39 @@ def dutTb():
 	return result
 
 def clocktb():
-	result=""
 	while True: 
 		clk = raw_input('Vols generar un clock? [s/n] ').lower()
 		if clk != 's' and clk != 'n':
 			print 'ERR: Opció invàlida'
 			continue
 		elif clk == 's':
-			result += "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for ¿? ns;\n\t\tfor i in 1 to ¿? loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for ¿? ns;\n\t\tend loop;\n\t\twait;\n\t end process clk_process;"
-		return result
+			while True:
+				try:
+					clk_freq = float(input("De quina freqüència (Hz)? "))
+					half_period = (1/clk_freq) / 2.
+					if clk_freq > 0:
+						break
+				except Exception as e:
+					print e
+					print "ERR: Freqüència invàlida"
+			
+			while True:
+				try:
+					n_times = int(input("Quantes oscil·lacions vols? ")) * 2
+					if n_times > 0:
+						break
+				except Exception:
+					pass
+				print "ERR: Nombre d'oscil·lacions invàlid"
+			
+			return "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for %.14f ns;\n\t\tfor i in 1 to %i loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for %.14f ns;\n\t\tend loop;\n\t\twait;\n\tend process clk_process;" % (half_period, n_times, half_period)
+		else:
+			return ""
 			
 tb_result += LibrarysTb()
 tb_result += entityTb()
 tb_result += architectureTb()
-tb_result += portsTb()
-tb_result += dutSignalsTb()
-tb_result += dutTb()
-tb_result += clocktb()
 
 # Write to file
 write_file(maketb, tb_result)
-print 'El fitxer %s s\'ha creat correctament' % maketb
+print "El fitxer %s s'ha creat correctament" % maketb
