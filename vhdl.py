@@ -270,8 +270,8 @@ class PortList(object):
 				t = t.strip()
 				for i in range(len(t)):
 					if t[i] == " ":
-						port_type = t[:i]
-						variable_type = t[i+1:]
+						port_type = t[:i].strip()
+						variable_type = t[i+1:].strip()
 						break
 				if "," in port_name:
 					for n in port_name.split(","):

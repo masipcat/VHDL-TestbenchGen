@@ -22,7 +22,7 @@ d888888P  888888ba   .88888.
    dP     88888888P  `88888'  `88888P' dP    dP 
 oooooooooooooooooooooooooooooooooooooooooooooooo
 
-version: 1.0
+version: 1.0.1
 author: Felipe Arango, Jordi Masip
 """
 
