@@ -22,30 +22,34 @@ d888888P  888888ba   .88888.
    dP     88888888P  `88888'  `88888P' dP    dP 
 oooooooooooooooooooooooooooooooooooooooooooooooo
 
-version: 1.0.2
+version: 1.0.1
 author: Felipe Arango, Jordi Masip
 """
 
 if len(sys.argv) != 2:
-	print "error: has d'especificar un fitxer .vhd"
+	print "ERR: Has d'especificar un fitxer .vhd"
 	sys.exit(1)
 
-vhdl_filename = sys.argv[1].split('.')
+name = sys.argv[1]
 
-if vhdl_filename[-1] != 'vhd':
-	print 'error: l\'extenció del fitxer ha de ser .vhd'
+if '.vhd' not in name:
+	print 'ERR: L\'extenció del fitxer ha de ser .vhd'
 	sys.exit(1)
 
-# VHDL_tb filename
-vhdl_filename = ".".join(vhdl_filename[:-1]) + '_tb.vhd'
 
-# VHDL content
-vhd_file = read_file(sys.argv[1]).lower()
+maketb=name.split('.')
+maketb=maketb[0]+'_tb.'+maketb[1]
+tb_result = ""
 
-# Creating VHDL obj
+vhd_file = sys.argv[1]
+vhd_file = read_file(vhd_file).lower()
 vhdl = VHDL()
-[vhdl.addLibrary(l) for l in getLibs(vhd_file)]
-[vhdl.setEntity(e) for e in getEntities(vhd_file)]
+
+for l in getLibs(vhd_file):
+	vhdl.addLibrary(l)
+
+for entity in getEntities(vhd_file):
+	vhdl.setEntity(entity)
 
 # Get each entity in 'vhdl' and adds each architecture in 'vhdl'
 for entity in vhdl.getEntities():
@@ -53,41 +57,58 @@ for entity in vhdl.getEntities():
 	if arch != "":
 		vhdl.setArchitecture(arch)
 	
-def libraryTb():
-	libs, uses = [], []
-	for l in vhdl.getLibs():
-		libs += ['library %s;' % l.getName()]
-		uses += ['use %s;' % p for p in l.getPackages()]
-	return "%s%s\n" % ("\n".join(libs), "\n".join(uses))
+def LibrarysTb(): #Librerias
+	result = ""
+	libss=[]
+	use=[]
+	for lib in vhdl.getLibs():
+		result += 'library '+lib.getName()+';\n'
+	
+	for lib in vhdl.getLibs():
+		for pack in lib.getPackages(): 
+			result += "use " + pack+';\n'
+	return result + "\n"
 			
-def entityTb():
-	entities = ['entity %s_tb is\nend %s_tb;' % (a.getEntity().getName(), a.getEntity().getName()) for a in vhdl.getArchitectures()]
-	return "\n".join(entities) + "\n\n"
+def entityTb(): #Entidad
+	result = ""
+	for architecture in vhdl.getArchitectures():
+		entity = architecture.getEntity()		#Puede ser global?
+		result += 'entity '+entity.getName()+'_tb is'+'\n'+'end '+entity.getName()+'_tb;\n'
+	return result + "\n"
 
 def architectureTb():
 	result = ""
 	for architecture in vhdl.getArchitectures():
 		entity = architecture.getEntity()
-		result += 'architecture behav of %s_tb is\n\tcomponent my_%s\n' % (entity.getName(), entity.getName())
-		result += portsTb() + dutSignalsTb() + dutTb() + clockTb()
+		result += 'architecture behav of '+entity.getName()+'_tb is\n'+'\tcomponent my_'+entity.getName()+'\n'
+		result += portsTb()
+		result += dutSignalsTb()
+		result += dutTb()
+		result += clocktb()
 		result += '\n\t-- Els teus process van aqui:\nend behav;'
 	return result
 
 def portsTb():
 	result = '\tport ('
-	for arch in vhdl.getArchitectures():
-		ent = arch.getEntity()
-		ports = ['\t{0} : {1} {2};\n'.format(p.getName(), p.getPortType(), p.getType()) for p in ent.getPorts().values()]
-		result += "\t\t".join(ports)[:-2] + ');\n\tend component;'
+	for architecture in vhdl.getArchitectures():
+		entity = architecture.getEntity()
+		for i, port in enumerate(entity.getPorts().values()):
+			if i != 0:
+				result += '\t\t'
+			result += '\t'+port.getName()+' : '+port.getPortType()+' '+port.getType()+';\n'
+			if i == len(entity.getPorts().values())-1:
+				result = result[:-2] + ");\n"
+		result += '\tend component;'
 	return result
 
 def dutSignalsTb():
 	result = ""
-	for arch in vhdl.getArchitectures():
-		e = arch.getEntity()
-		result += '\n\tfor dut : my_%s use entity work.%s;\n\n' % (e.getName(), e.getName())
-		result += "\n".join(['\tsignal t_%s : %s;' % (p.getName(), p.getType()) for p in e.getPorts().values()])
-		result += '\n\n\tbegin\n'
+	for architecture in vhdl.getArchitectures():
+		entity = architecture.getEntity()
+		result += '\n\tfor dut : my_'+entity.getName()+' use entity work.'+entity.getName()+';\n'
+		for port in entity.getPorts().values():
+			result += '\tsignal t_'+port.getName()+' : '+port.getType()+';\n'
+		result += 'begin\n'
 	return result
 		
 def dutTb():
@@ -95,28 +116,30 @@ def dutTb():
 	for architecture in vhdl.getArchitectures():
 		entity = architecture.getEntity()
 		result += '\tdut: my_%s port map (\n' % entity.getName()
-		for p in entity.getPorts().values():
-			result += '\t\t%s => t_%s,\n' % (p.getName(), p.getName())
-		result = result[:-2] + ");\n"
+		for i, port in enumerate(entity.getPorts().values()):
+			if i != len(entity.getPorts().values())-1:
+				result += '\t\t'+port.getName()+'\t=> t_'+port.getName()+',\n'
+				i += 1
+			else:
+				result += '\t\t'+port.getName()+'\t=> t_'+port.getName()+');\n'
 	return result
 
-def clockTb():
+def clocktb():
 	while True: 
-		clk = raw_input('Vols generar un clock (s/n) [n]: ').lower()
-		clk = "n" if clk == "" else clk
+		clk = raw_input('Vols generar un clock? [s/n] ').lower()
 		if clk != 's' and clk != 'n':
-			print 'error: opció invàlida'
+			print 'ERR: Opció invàlida'
 			continue
 		elif clk == 's':
 			while True:
 				try:
-					clk_freq = float(input("De quina freqüència (Hz): "))
+					clk_freq = float(input("De quina freqüència (Hz)? "))
 					half_period = (1/clk_freq) / 2.
 					if clk_freq > 0:
 						break
 				except Exception as e:
 					print e
-					print "error: freqüència invàlida"
+					print "ERR: Freqüència invàlida"
 			
 			while True:
 				try:
@@ -125,15 +148,16 @@ def clockTb():
 						break
 				except Exception:
 					pass
-				print "error: nombre d'oscil·lacions invàlid"
+				print "ERR: Nombre d'oscil·lacions invàlid"
 			
 			return "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for %.14f ns;\n\t\tfor i in 1 to %i loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for %.14f ns;\n\t\tend loop;\n\t\twait;\n\tend process clk_process;" % (half_period, n_times, half_period)
 		else:
 			return ""
+			
+tb_result += LibrarysTb()
+tb_result += entityTb()
+tb_result += architectureTb()
 
 # Write to file
-try:
-	write_file(vhdl_filename, libraryTb() + entityTb() + architectureTb())
-	print '\nEl fitxer "%s" s\'ha creat correctament' % vhdl_filename
-except Exception as e:
-	print "error: no hem pogut escriure l'arxiu '%s'" % vhdl_filename
+write_file(maketb, tb_result)
+print "El fitxer %s s'ha creat correctament" % maketb

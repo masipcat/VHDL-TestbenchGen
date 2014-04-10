@@ -72,7 +72,7 @@ class Library(object):
 		if self._lib + "." + package_name not in self._packages:
 			self._packages += [self._lib + "." + package_name]
 		else:
-			print "error: el paquet '{0}' ja es troba a la library".format(package_name)
+			print "ERR: El paquet '%s' ja es troba a la library"
 
 	def getPackages(self):
 		return self._packages
@@ -107,7 +107,7 @@ class Entity(object):
 		return self._port
 
 	def __str__(self):
-		return "<Entity %s>" % self._name
+		return "<Entity " + self._name + ">"
 
 	def __eq__(self, other):
 		return self._name == other.getName() if isinstance(other, Entity) else False
@@ -130,7 +130,7 @@ class Signal(object):
 		if isinstance(n, str):
 			self._name = n
 		else:
-			print "error: el nom '%s' ha de ser una cadena" % self._obj_name
+			print "ERR: El nom '%s' ha de ser una cadena" % self._obj_name
 
 	def setValue(self, val):
 		self._value = val
@@ -145,7 +145,7 @@ class Signal(object):
 		if isinstance(t, str):
 			self._type = t
 		else:
-			print "error: el tipus '%s' ha de ser una cadena" % self._obj_name
+			print "ERR: El tipus '%s' ha de ser una cadena" % self._obj_name
 
 	def __str__(self):
 		if self._value == "":
@@ -178,9 +178,6 @@ class SignalList(object):
 					left, assignation = signal.split(":=")
 				else:
 					left = signal
-				if ":" not in left:
-					print "atenció: s'ha ignorat la línia '%s'" % left.strip()
-					continue
 				port_prefix, t = left.strip().split(":")
 				port_prefix = port_prefix.strip()
 				for i in range(len(port_prefix)):
@@ -189,10 +186,8 @@ class SignalList(object):
 						port_prefix = port_prefix[i+1:].strip()
 						break
 				else:
-					print "error: el senyal '%s' és invàlid" % signal
+					print "ERR: El senyal '%s' és invàlid" % signal
 					return signals
-				if variable_type == "type":
-					continue
 				t = t.strip()
 				if "," in port_prefix:
 					for n in port_prefix.split(","):
@@ -207,7 +202,7 @@ class SignalList(object):
 							signal.setValue(assignation)
 					signals[port_prefix] = signal
 		except Exception as e:
-			print "error: no es pot llegir el 'signal': %s" % e
+			print "ERR: No es pot llegir el 'signal': %s" % e
 		return signals
 
 class Port(Signal):
@@ -223,7 +218,7 @@ class Port(Signal):
 		if t in ["in", "out", "inout", "buffer", "linkage"]:
 			self._port_type = t
 		else:
-			print "error: '%s' és un port_type invàlid pel %s '%s'" % (str(t), self._obj_name, self._name)
+			print "ERR: '%s' és un port_type invàlid pel %s '%s'" % (str(t), self._obj_name, self._name)
 
 	def getPortType(self):
 		return self._port_type
@@ -285,7 +280,7 @@ class PortList(object):
 				else:		
 					ports[port_name] = Port(port_name, port_type, variable_type)
 		except Exception as e:
-			print "error: sembla que el port està malformat"
+			print "ERR: Sembla que el port està malformat"
 		return ports
 
 class Architecture(object):
@@ -298,11 +293,11 @@ class Architecture(object):
 		if isinstance(name, str):
 			self._name = name
 		else:
-			print "error: aquesta arquitectura té un nom invàlid"
+			print "ERR: Aquesta arquitectura té un nom invàlid"
 		if isinstance(ent, Entity):
 			self._archOf = ent
 		else:
-			print "error: l'arquitectura '%s' té una entitat invàlida" % self._name
+			print "ERR: L'arquitectura '%s' té una entitat invàlida" % self._name
 
 	def getName(self):
 		return self._name
