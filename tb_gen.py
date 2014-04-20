@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys, os
+import sys
 from vhdl import *
 from vParser import *
 
@@ -22,7 +22,7 @@ d888888P  888888ba   .88888.
    dP     88888888P  `88888'  `88888P' dP    dP 
 oooooooooooooooooooooooooooooooooooooooooooooooo
 
-version: 1.0.2
+version: 1.0.3
 author: Felipe Arango, Jordi Masip
 """
 
@@ -40,7 +40,7 @@ if vhdl_filename[-1] != 'vhd':
 vhdl_filename = ".".join(vhdl_filename[:-1]) + '_tb.vhd'
 
 # VHDL content
-vhd_file = read_file(sys.argv[1]).lower()
+vhd_file = read_file(sys.argv[1])
 
 # Creating VHDL obj
 vhdl = VHDL()
@@ -111,7 +111,7 @@ def clockTb():
 			while True:
 				try:
 					clk_freq = float(input("De quina freqüència (Hz): "))
-					half_period = (1/clk_freq) / 2.
+					half_period = (1/clk_freq) / 2. * 10**9
 					if clk_freq > 0:
 						break
 				except Exception as e:
@@ -127,7 +127,7 @@ def clockTb():
 					pass
 				print "error: nombre d'oscil·lacions invàlid"
 			
-			return "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for %.14f ns;\n\t\tfor i in 1 to %i loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for %.14f ns;\n\t\tend loop;\n\t\twait;\n\tend process clk_process;" % (half_period, n_times, half_period)
+			return "\tclk_process: process\n\tbegin\n\t\tt_clk <= '0';\n\t\twait for %.8f ns;\n\t\tfor i in 1 to %i loop\n\t\t\tt_clk <= not t_clk;\n\t\t\twait for %.8f ns;\n\t\tend loop;\n\t\twait;\n\tend process clk_process;" % (half_period, n_times, half_period)
 		else:
 			return ""
 
