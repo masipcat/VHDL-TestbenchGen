@@ -22,43 +22,16 @@ d888888P  888888ba   .88888.
    dP     88888888P  `88888'  `88888P' dP    dP 
 oooooooooooooooooooooooooooooooooooooooooooooooo
 
-version: 1.0.3
+version: 1.0.4
 author: Felipe Arango, Jordi Masip
 """
-
-if len(sys.argv) != 2:
-	print "error: has d'especificar un fitxer .vhd"
-	sys.exit(1)
-
-vhdl_filename = sys.argv[1].split('.')
-
-if vhdl_filename[-1] != 'vhd':
-	print 'error: l\'extenció del fitxer ha de ser .vhd'
-	sys.exit(1)
-
-# VHDL_tb filename
-vhdl_filename = ".".join(vhdl_filename[:-1]) + '_tb.vhd'
-
-# VHDL content
-vhd_file = read_file(sys.argv[1])
-
-# Creating VHDL obj
-vhdl = VHDL()
-[vhdl.addLibrary(l) for l in getLibs(vhd_file)]
-[vhdl.setEntity(e) for e in getEntities(vhd_file)]
-
-# Get each entity in 'vhdl' and adds each architecture in 'vhdl'
-for entity in vhdl.getEntities():
-	arch = getArchitectureOfEntity(vhd_file, entity)
-	if arch != "":
-		vhdl.setArchitecture(arch)
 	
 def libraryTb():
 	libs, uses = [], []
 	for l in vhdl.getLibs():
 		libs += ['library %s;' % l.getName()]
 		uses += ['use %s;' % p for p in l.getPackages()]
-	return "%s%s\n" % ("\n".join(libs), "\n".join(uses))
+	return "%s%s\n\n" % ("\n".join(libs), "\n".join(uses))
 			
 def entityTb():
 	entities = ['entity %s_tb is\nend %s_tb;' % (a.getEntity().getName(), a.getEntity().getName()) for a in vhdl.getArchitectures()]
@@ -131,9 +104,38 @@ def clockTb():
 		else:
 			return ""
 
-# Write to file
-try:
-	write_file(vhdl_filename, libraryTb() + entityTb() + architectureTb())
-	print '\nEl fitxer "%s" s\'ha creat correctament' % vhdl_filename
-except Exception as e:
-	print "error: no hem pogut escriure l'arxiu '%s'" % vhdl_filename
+if __name__ == "__main__":
+
+	if len(sys.argv) != 2:
+		print "error: has d'especificar un fitxer .vhd"
+		sys.exit(1)
+
+	vhdl_filename = sys.argv[1].split('.')
+
+	if vhdl_filename[-1] != 'vhd':
+		print 'error: l\'extenció del fitxer ha de ser .vhd'
+		sys.exit(1)
+
+	# VHDL_tb filename
+	vhdl_filename = ".".join(vhdl_filename[:-1]) + '_tb.vhd'
+
+	# VHDL content
+	vhd_file = read_file(sys.argv[1])
+
+	# Creating VHDL obj
+	vhdl = VHDL()
+	[vhdl.addLibrary(l) for l in getLibs(vhd_file)]
+	[vhdl.setEntity(e) for e in getEntities(vhd_file)]
+
+	# Get each entity in 'vhdl' and adds each architecture in 'vhdl'
+	for entity in vhdl.getEntities():
+		arch = getArchitectureOfEntity(vhd_file, entity)
+		if arch != "":
+			vhdl.setArchitecture(arch)
+
+	# Write to file
+	try:
+		write_file(vhdl_filename, libraryTb() + entityTb() + architectureTb() + "\n\0")
+		print '\nEl fitxer "%s" s\'ha creat correctament' % vhdl_filename
+	except Exception as e:
+		print "error: no hem pogut escriure l'arxiu '%s'" % vhdl_filename
