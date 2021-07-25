@@ -1,6 +1,8 @@
 VHDL-TestbenchGen
 =================
 
+> ⚠️ **This project it's not maintained anymore**
+
 Use this script to generate a VHDL testbench template from your .vhd file.
 
 ### How to use:
